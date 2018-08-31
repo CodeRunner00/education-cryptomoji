@@ -15,7 +15,13 @@ const { randomBytes, createHash } = require('crypto');
  */
 const createPrivateKey = () => {
   // Enter your solution here
+ let privKey = randomBytes(32);
+ do {
+  privKey = randomBytes(32);
+} while (!secp256k1.privateKeyVerify(privKey))
+let hexPrivKey = privKey.toString('hex');
 
+return hexPrivKey;
 };
 
 /**
@@ -34,6 +40,12 @@ const createPrivateKey = () => {
 const getPublicKey = privateKey => {
   // Your code here
 
+  let privKeyBuffer = Buffer.from(privateKey, 'hex');
+  let pubKey = secp256k1.publicKeyCreate(privKeyBuffer);
+  pubKey = pubKey.toString('hex');
+
+    return pubKey;
+
 };
 
 /**
@@ -51,7 +63,14 @@ const getPublicKey = privateKey => {
  */
 const sign = (privateKey, message) => {
   // Your code here
+  let hash = createHash('sha256');
+  hash.update(message);
+  let hashMessage = hash.digest();
+  let privKeyBuffer = Buffer.from(privateKey, 'hex');
+  const signObj = secp256k1.sign(hashMessage, privKeyBuffer);
+  console.log('signObj ', signObj);
 
+  return signObj.signature.toString('hex');
 };
 
 /**
@@ -66,6 +85,14 @@ const sign = (privateKey, message) => {
  */
 const verify = (publicKey, message, signature) => {
   // Your code here
+  let pubKeyBuffer = Buffer.from(publicKey, 'hex');
+  let signatureBuffer = Buffer.from(signature, 'hex');
+
+  let hash = createHash('sha256');
+  hash.update(message);
+  let hashMessage = hash.digest();
+
+  return secp256k1.verify(hashMessage, signatureBuffer, pubKeyBuffer);
 
 };
 
