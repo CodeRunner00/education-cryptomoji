@@ -68,7 +68,7 @@ const sign = (privateKey, message) => {
   let hashMessage = hash.digest();
   let privKeyBuffer = Buffer.from(privateKey, 'hex');
   const signObj = secp256k1.sign(hashMessage, privKeyBuffer);
-  console.log('signObj ', signObj);
+
 
   return signObj.signature.toString('hex');
 };
