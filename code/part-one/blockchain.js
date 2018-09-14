@@ -24,6 +24,11 @@ class Transaction {
   constructor(privateKey, recipient, amount) {
     // Enter your solution here
 
+    this.source = signing.getPublicKey(privateKey);
+    this.recipient = recipient;
+    this.amount = amount;
+    let signCombo = this.source + this.recipient + this.amount;
+    this.signature = signing.sign(privateKey, signCombo);
   }
 }
 
@@ -45,7 +50,10 @@ class Block {
    */
   constructor(transactions, previousHash) {
     // Your code here
+    this.transactions = transactions;
 
+    this.previousHash = previousHash;
+    this.calculateHash(0);
   }
 
   /**
@@ -58,7 +66,14 @@ class Block {
    *   properties change.
    */
   calculateHash(nonce) {
-    // Your code here
+    const hashh = createHash('sha256');
+    let transactionString='';
+    this.transactions.map(function(transaction) {
+      return transactionString += transaction.signature;
+    });
+    hashh.update(transactionString + this.previousHash + nonce);
+    this.nonce = nonce;
+    this.hash = hashh.digest('hex');
 
   }
 }
@@ -79,6 +94,8 @@ class Blockchain {
    */
   constructor() {
     // Your code here
+    let genesis = new Block([], null);
+    this.blocks = [genesis];
 
   }
 
@@ -87,6 +104,7 @@ class Blockchain {
    */
   getHeadBlock() {
     // Your code here
+    return this.blocks[this.blocks.length-1];
 
   }
 
@@ -96,7 +114,9 @@ class Blockchain {
    */
   addBlock(transactions) {
     // Your code here
-
+    let prevBlockHash = this.getHeadBlock().hash;
+    let newBlock = new Block(transactions, prevBlockHash);
+    this.blocks.push(newBlock);
   }
 
   /**
@@ -110,9 +130,25 @@ class Blockchain {
    */
   getBalance(publicKey) {
     // Your code here
+    let isValidAddress=false;
+    let balance = 0;
+    let block;
+    let iterator =0;
+    for(var i = 0; i < this.blocks.length; i++) {
+      for(var j = 0; j < this.blocks[i].transactions.length; j++) {
+        if(this.blocks[i].transactions[j].recipient === publicKey) {
+          balance = balance + this.blocks[i].transactions[j].amount;
+        }
 
+        if(this.blocks[i].transactions[j].source === publicKey) {
+          balance = balance - this.blocks[i].transactions[j].amount;
+        }
+      }
+    }
+
+      return balance;
+    }
   }
-}
 
 module.exports = {
   Transaction,

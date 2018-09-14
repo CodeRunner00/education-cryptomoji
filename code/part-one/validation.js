@@ -13,6 +13,16 @@ const signing = require('./signing');
 const isValidTransaction = transaction => {
   // Enter your solution here
 
+
+  if(transaction.amount < 0) {
+    return false;
+  }
+
+  const signCombo =  transaction.source + transaction.recipient + transaction.amount
+
+
+  return signing.verify(transaction.source, signCombo, transaction.signature);
+
 };
 
 /**
@@ -23,7 +33,25 @@ const isValidTransaction = transaction => {
  */
 const isValidBlock = block => {
   // Your code here
+  for(var i = 0;i<block.transactions.length; i++) {
+    if(!isValidTransaction(block.transactions[i])) {
+      return false;
+    }
+  }
 
+  const hashh = createHash('sha256');
+  let transactionString='';
+  block.transactions.map(function(transaction) {
+    return transactionString += transaction.signature;
+  });
+  hashh.update(transactionString + block.previousHash + block.nonce);
+  let actualHash = hashh.digest('hex');
+
+  if(actualHash === block.hash) {
+    return true
+  }
+
+  return false;
 };
 
 /**
@@ -38,6 +66,41 @@ const isValidBlock = block => {
  */
 const isValidChain = blockchain => {
   // Your code here
+  let prevHash;
+  let index;
+  let block;
+  for(let i = 0; i <blockchain.blocks.length; i++ ) {
+    index = i;
+    block = blockchain.blocks[i]
+    if(prevHash) {
+      if(block.previousHash !== prevHash) {
+        return false;
+      }
+    }
+
+    if(index === 0) {
+      console.log('index 0 block ', block);
+      if(block.previousHash !== null) {
+        console.log('in index false');
+        return false;
+      }
+    }
+
+    if(!isValidBlock(block)) {
+      return false;
+    }
+
+    for(var j = 0; j < block.transactions.length; j++) {
+      if(!isValidTransaction(block.transactions[j])) {
+        return false;
+      }
+    }
+    prevHash = block.hash;
+
+  };
+
+  return true;
+
 
 };
 

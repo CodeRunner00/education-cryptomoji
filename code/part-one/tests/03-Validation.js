@@ -132,7 +132,9 @@ describe('Validation module', function() {
     });
 
     it('should return false when the genesis block is removed', function() {
+      console.log('blockchain for genesis test ', blockchain);
       blockchain.blocks.shift();
+       console.log('blockchain for genesis test after shift', blockchain);
       expect(validation.isValidChain(blockchain)).to.be.false;
     });
 
