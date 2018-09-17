@@ -16,6 +16,15 @@
 export const encode = object => {
   // Enter your solution here
 
+ const ordered = {};
+ Object.keys(object).sort().forEach(function(key) {
+  ordered[key] = object[key];
+ });
+
+ let buf = Buffer.from(JSON.stringify(ordered));
+
+ return buf;
+
 };
 
 /**
@@ -29,5 +38,17 @@ export const encode = object => {
  */
 export const decode = base64Str => {
   // Your code here
+  let buf = Buffer.from(base64Str, 'base64');
+
+
+
+  let obj = JSON.parse(buf.toString());
+  console.log('obj ', obj);
+  const ordered = {}
+  Object.keys(obj).sort().forEach(function(key) {
+   ordered[key] = obj[key];
+  });
+
+  return ordered;
 
 };

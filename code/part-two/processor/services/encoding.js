@@ -18,6 +18,15 @@
 const encode = object => {
   // Enter your solution here
 
+ const ordered = {};
+ Object.keys(object).sort().forEach(function(key) {
+  ordered[key] = object[key];
+ });
+
+ let buf = Buffer.from(JSON.stringify(ordered));
+
+ return buf;
+
 };
 
 /**
@@ -25,7 +34,13 @@ const encode = object => {
  * the client version, there is no need to handle base64 strings.
  */
 const decode = buffer => {
-  // Your code here
+  let obj = JSON.parse(buffer.toString());
+  const ordered = {}
+  Object.keys(obj).sort().forEach(function(key) {
+   ordered[key] = obj[key];
+  });
+
+  return ordered;
 
 };
 
